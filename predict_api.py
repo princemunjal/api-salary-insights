@@ -11,6 +11,8 @@ model = pickle.load(open('model.pkl', 'rb'))
 class Predict(Resource):
 	def post(self):
 		try:
+			response_data={"status":"failure", "message":"Internal Error. Please contact administrator."}
+			response_cd=500
 			request_data=request.get_json()
 			exp = int(request_data["experience"])
 			gender = int(request_data["gender"])
@@ -19,10 +21,13 @@ class Predict(Resource):
 			final_features = [np.array(int_features)]
 			prediction = model.predict(final_features)
 			output = round(prediction[0], 2)
-
-			return {"status":"success", "predictedSalary": output}, 200
+			response_data={"status":"success", "predictedSalary": output}
+			response_cd=200
 		except Exception as e:
-			return {"status":"failure", "message": str(e)}, 500
+			print(e)
+			response_data={"status":"failure","message":"Internal Error. Please contact administartor.", "exception": str(e)}
+		finally:
+			return response_data,response_cd
 	   
 	   
 
